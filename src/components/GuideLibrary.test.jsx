@@ -45,7 +45,7 @@ describe("Drafting guide library", () => {
 
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
     expect(screen.getByRole("heading", { level: 1, name: /Dependent claims/iu })).toBeInTheDocument();
-    expect(screen.getByText("30-second takeaway")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "The short answer" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Official sources" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Copy checklist" })).toBeEnabled();
     await expectNoAxeViolations(container);

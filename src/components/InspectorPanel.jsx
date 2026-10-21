@@ -88,9 +88,7 @@ export function InspectorPanel({
               ? `Claim ${selectedClaim.number}${selectedLimitationNumber > 0 ? ` · Limitation ${selectedLimitationNumber}` : ""}`
               : "No claim selected"}
           </p>
-          <p className="selected-clause-copy">
-            {selectedLimitation?.text || "Select a limitation to inspect its terms, support, and mechanical findings."}
-          </p>
+          {selectedLimitation?.text ? <p className="selected-clause-copy">{selectedLimitation.text}</p> : null}
         </section>
 
         <section className="inspector-section">
@@ -108,9 +106,7 @@ export function InspectorPanel({
                 </li>
               ))}
             </ul>
-          ) : (
-            <p className="rationale">Terms appear here as the structured claim is drafted.</p>
-          )}
+          ) : null}
         </section>
 
         <section className="inspector-section">
@@ -120,9 +116,7 @@ export function InspectorPanel({
               <strong><CheckCircle size={13} aria-hidden="true" /> {selectedAnchor.label}</strong>
               <span>{selectedAnchor.text}</span>
             </div>
-          ) : (
-            <p className="rationale">Select a disclosure passage to compare it with the active clause.</p>
-          )}
+          ) : null}
         </section>
 
         <section className="inspector-section" aria-labelledby="preflight-findings-heading">

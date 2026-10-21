@@ -2,8 +2,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
-  BookOpen,
-  CheckSquare,
   ClipboardText,
   DownloadSimple,
   MagnifyingGlass,
@@ -298,9 +296,6 @@ function GuideCard({ guide, categories, onNavigate }) {
         <AppLink href={hrefForGuide(guide)} onNavigate={onNavigate}>{guide.title}</AppLink>
       </h3>
       <p>{guide.description}</p>
-      <AppLink className="guide-card-link" href={hrefForGuide(guide)} onNavigate={onNavigate}>
-        Open guide <ArrowRight aria-hidden="true" size={15} />
-      </AppLink>
     </article>
   );
 }
@@ -309,7 +304,6 @@ function GuideHub({ headingRef, onNavigate, onBackToPractice }) {
   const categories = useMemo(normalizedCategories, []);
   const [query, setQuery] = useState("");
   const [categoryId, setCategoryId] = useState("all");
-  const resultsHeadingRef = useRef(null);
   const normalizedQuery = query.trim().toLocaleLowerCase();
   const filteredGuides = useMemo(() => guides.filter((guide) => {
     if (categoryId !== "all" && guideCategoryId(guide) !== categoryId) return false;
@@ -327,12 +321,6 @@ function GuideHub({ headingRef, onNavigate, onBackToPractice }) {
     return searchable.includes(normalizedQuery);
   }), [categories, categoryId, normalizedQuery]);
 
-  const selectTaskRoute = (event, nextCategoryId) => {
-    setCategoryId(nextCategoryId);
-    setQuery("");
-    globalThis.requestAnimationFrame?.(() => resultsHeadingRef.current?.focus());
-  };
-
   const clearFilters = () => {
     setCategoryId("all");
     setQuery("");
@@ -344,9 +332,7 @@ function GuideHub({ headingRef, onNavigate, onBackToPractice }) {
 
       <div id="guide-main" className="guide-main guide-hub-main">
         <section className="guide-hero" aria-labelledby="guide-hub-title">
-          <p className="guide-eyebrow"><BookOpen aria-hidden="true" size={18} /> Patent practice library</p>
           <h1 id="guide-hub-title" ref={headingRef} tabIndex="-1">Practical patent-drafting guides</h1>
-          <p>Start with the task in front of you, get the short answer first, and open deeper explanations only when you need them.</p>
           <div className="guide-hero-actions">
             <a className="guide-download-button" href={DOWNLOAD_PATH} download>
               <DownloadSimple aria-hidden="true" size={17} />
@@ -362,36 +348,12 @@ function GuideHub({ headingRef, onNavigate, onBackToPractice }) {
 
         <aside className="guide-scope-note" aria-label="Guide scope">
           <strong>Scope: educational U.S. utility-patent practice</strong>
-          <p>Official baselines, USPTO procedure, practice suggestions, cautions, and examples are labeled separately. These guides are not matter-specific legal advice.</p>
+          <p>These guides are not matter-specific legal advice.</p>
         </aside>
-
-        <nav className="guide-task-routes" aria-labelledby="task-routes-title">
-          <div className="guide-section-heading">
-            <p className="guide-eyebrow">Choose a route</p>
-            <h2 id="task-routes-title">What are you working on?</h2>
-          </div>
-          <div className="guide-task-grid">
-            {categories.map((category) => {
-              const count = guides.filter((guide) => guideCategoryId(guide) === category.id).length;
-              return (
-                <a
-                  href="#guide-results"
-                  key={category.id}
-                  onClick={(event) => selectTaskRoute(event, category.id)}
-                >
-                  <strong>{category.label}</strong>
-                  <span>{category.description || `${count} ${count === 1 ? "guide" : "guides"}`}</span>
-                  <ArrowRight aria-hidden="true" size={15} />
-                </a>
-              );
-            })}
-          </div>
-        </nav>
 
         <section className="guide-catalog" aria-labelledby="guide-results">
           <div className="guide-section-heading">
-            <p className="guide-eyebrow">Browse and search</p>
-            <h2 id="guide-results" ref={resultsHeadingRef} tabIndex="-1">Guide library</h2>
+            <h2 id="guide-results">Guide library</h2>
           </div>
 
           <div className="guide-search-controls">
@@ -403,7 +365,6 @@ function GuideHub({ headingRef, onNavigate, onBackToPractice }) {
                   type="search"
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Try dependent claims, summary, or drafting language"
                 />
               </span>
             </label>
@@ -436,7 +397,6 @@ function GuideHub({ headingRef, onNavigate, onBackToPractice }) {
           ) : (
             <div className="guide-empty-state" role="status">
               <h3>No guides match those filters</h3>
-              <p>Try a broader search or return to the full library.</p>
               <button type="button" onClick={clearFilters}>Clear search and filters</button>
             </div>
           )}
@@ -520,12 +480,10 @@ function GuideArticle({ guide, headingRef, onNavigate, onBackToPractice }) {
               {titleForCategory(guideCategoryId(guide), categories)} · {guide.readingTime}
             </p>
             <h1 ref={headingRef} tabIndex="-1">{guide.title}</h1>
-            <p className="guide-description">{guide.description}</p>
             <p className="guide-scope-inline">Educational U.S. utility-patent practice · Not matter-specific legal advice</p>
           </header>
 
           <section className="guide-takeaway" aria-labelledby="guide-takeaway-title">
-            <p className="guide-section-label">30-second takeaway</p>
             <h2 id="guide-takeaway-title">The short answer</h2>
             <p>{guide.takeaway}</p>
           </section>
@@ -553,7 +511,6 @@ function GuideArticle({ guide, headingRef, onNavigate, onBackToPractice }) {
           <section className="guide-checklist" aria-labelledby="guide-checklist-title">
             <div className="guide-checklist-heading">
               <div>
-                <p className="guide-section-label">Quick reference</p>
                 <h2 id="guide-checklist-title">Final checklist</h2>
               </div>
               <button type="button" onClick={copyChecklist} disabled={!guide.checklist?.length}>
@@ -595,11 +552,6 @@ function GuideArticle({ guide, headingRef, onNavigate, onBackToPractice }) {
           ) : null}
 
           <footer className="guide-article-footer">
-            <CheckSquare aria-hidden="true" size={20} />
-            <div>
-              <strong>Ready to apply it?</strong>
-              <p>Return to ScopeCraft and use the checklist while you draft.</p>
-            </div>
             <BackToPracticeLink onBackToPractice={onBackToPractice} onNavigate={onNavigate} />
           </footer>
         </article>
@@ -612,9 +564,7 @@ function GuideNotFound({ headingRef, onNavigate, onBackToPractice }) {
   return (
     <div className="guide-library guide-not-found-page">
       <section className="guide-main guide-not-found" id="guide-main" aria-labelledby="guide-not-found-title">
-        <p className="guide-eyebrow">Guide library</p>
         <h1 id="guide-not-found-title" ref={headingRef} tabIndex="-1">Guide not found</h1>
-        <p>The requested guide is not part of the current practice library.</p>
         <AppLink className="guide-primary-link" href={GUIDE_INDEX_PATH} onNavigate={onNavigate}>
           Browse all guides <ArrowRight aria-hidden="true" size={15} />
         </AppLink>

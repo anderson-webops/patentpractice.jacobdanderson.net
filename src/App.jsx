@@ -74,7 +74,6 @@ import {
 } from "./engine/runtimeCompatibility.js";
 import { createAttemptStore, exportAttemptState } from "./persistence/attemptStore.js";
 import {
-  hasCompletedQuickTour,
   markQuickTourComplete,
 } from "./persistence/tourPreference.js";
 
@@ -174,7 +173,7 @@ function HelpContent({ challenge, onOpenGuides, onOpenTour }) {
       ))}
       <div className="modal-action-row">
         <button type="button" className="secondary-button" onClick={onOpenTour}>
-          Replay the quick tour
+          Quick tour
         </button>
         <button type="button" className="secondary-button" onClick={onOpenGuides}>
           <BookOpen size={15} aria-hidden="true" /> Open full drafting guides
@@ -246,9 +245,6 @@ export function App() {
   const [storageState, setStorageState] = useState({ ready: false, backend: null });
   const [savedAttempts, setSavedAttempts] = useState([]);
   const [durableSaveEnabled, setDurableSaveEnabled] = useState(true);
-  const [showFirstUseGuide, setShowFirstUseGuide] = useState(
-    () => !hasCompletedQuickTour(),
-  );
   const [tourStep, setTourStep] = useState(0);
   const [printPacketType, setPrintPacketType] = useState(PRINT_PACKET_TYPES.DRAFTING);
   const [printModel, setPrintModel] = useState(null);
@@ -507,19 +503,11 @@ export function App() {
     setModal({ type: "tour" });
   };
 
-  const dismissFirstUseGuide = () => {
-    markQuickTourComplete();
-    setShowFirstUseGuide(false);
-    focusBriefingStart();
-    announce("The quick tour remains available from Help.");
-  };
-
   const finishQuickTour = () => {
     markQuickTourComplete();
-    setShowFirstUseGuide(false);
     setModal(null);
     focusBriefingStart();
-    announce("Quick tour complete. You can replay it from Help.", "success");
+    announce("Quick tour complete.", "success");
   };
 
   const copyAssignment = async () => {
@@ -536,7 +524,7 @@ export function App() {
         throw new Error("Clipboard unavailable");
       }
       await globalThis.navigator.clipboard.writeText(url);
-      announce("Assignment link copied. It selects this challenge and mode without carrying attempt data.", "success");
+      announce("Assignment link copied.", "success");
     } catch {
       setModal({ type: "assignment-link", url });
     }
@@ -564,7 +552,7 @@ export function App() {
       return attemptReducer(starting, { type: ACTION_TYPES.START_DRAFTING });
     });
     setActiveNavId("draft");
-    announce("Drafting opened. The ghost prompt teaches structure only and does not contain a hidden solution.", "success");
+    announce("Drafting opened.", "success");
   };
 
   const updateClaimSet = (nextClaimSet) => {
@@ -723,7 +711,7 @@ export function App() {
 
   const exportAttempt = () => {
     downloadJson(`scopecraft-${attempt.attemptId}.json`, exportAttemptState(attempt));
-    announce("Attempt JSON exported without account data or telemetry identifiers.", "success");
+    announce("Attempt exported.", "success");
   };
 
   const saveNow = async () => {
@@ -890,7 +878,6 @@ export function App() {
     setActiveNavId(id);
     if (id === "draft") {
       if (attempt.phase === "briefing") startDrafting();
-      else announce("The current drafting stage is already open.");
       return;
     }
     if (id === "disclosure") {
@@ -898,7 +885,6 @@ export function App() {
         setEvidenceTab("disclosure");
         setEvidenceCollapsed(false);
         if (compactRails()) setInspectorCollapsed(true);
-        announce("The disclosure rail is open on the left.");
       } else setModal({ type: "disclosure" });
       return;
     }
@@ -909,9 +895,8 @@ export function App() {
         if (compactRails()) setInspectorCollapsed(true);
         if (id === "search") {
           globalThis.requestAnimationFrame?.(() => document.querySelector(".evidence-panel input[type='search']")?.focus());
-          announce("The evidence search field is ready.");
-        } else {
-          announce(playerChallenge.priorArt.locked ? "Prior art remains concealed in this mode until submission." : "The Prior art tab is open in the evidence rail.");
+        } else if (playerChallenge.priorArt.locked) {
+          announce("Prior art remains concealed in this mode until submission.");
         }
       } else setModal({ type: "references" });
       return;
@@ -1005,9 +990,6 @@ export function App() {
         onStart={startDrafting}
         assignmentNotice={assignmentNotice}
         onCopyAssignment={copyAssignment}
-        showFirstUseGuide={showFirstUseGuide}
-        onStartTour={openQuickTour}
-        onDismissFirstUse={dismissFirstUseGuide}
       />
     );
   } else if (["drafting", "preflight", "response"].includes(attempt.phase)) {
@@ -1164,7 +1146,6 @@ export function App() {
             readOnly
             onFocus={(event) => event.currentTarget.select()}
           />
-          <small>This link contains no claim text, score, answer, or attempt identifier.</small>
         </label>
       );
     }
@@ -1189,7 +1170,6 @@ export function App() {
       return (
         <fieldset className="print-options">
           <legend>Choose a player-facing packet</legend>
-          <p>Packets unlock with the exercise and include only material already available in your attempt.</p>
           {options.map((option) => {
             const available = availablePrintPackets.includes(option.id);
             return (
@@ -1244,7 +1224,7 @@ export function App() {
         <div className="saved-drafts">
           <section className="modal-callout" data-tone="warning">
             <strong>Private browser storage</strong>
-            <p>Claim drafts may contain confidential work. ScopeCraft never resumes one automatically. Choose a draft explicitly, or delete records before another person uses this browser profile.</p>
+            <p>Claim drafts may contain confidential work. Delete saved drafts before another person uses this browser profile.</p>
             <small>Records expire after 90 days and are limited to the 20 most recent drafts. Session-only mode is available in Settings.</small>
           </section>
           <div className="settings-list">
@@ -1306,9 +1286,9 @@ export function App() {
     if (modal.type === "settings") return (
       <div className="settings-list">
         <label><input type="checkbox" checked={durableSaveEnabled} onChange={(event) => changeDurableSaving(event.target.checked)} /><span><strong>Save drafts in this browser</strong><small>When off, edits remain only in this tab. Saved drafts expire after 90 days and are limited to the 20 most recent records.</small></span></label>
-        <label><input type="checkbox" checked={ghostTextEnabled} onChange={(event) => setGhostTextEnabled(event.target.checked)} /><span><strong>Mechanical ghost prompt</strong><small>Shows only structural drafting guidance, never a hidden substantive answer.</small></span></label>
-        <label><input type="checkbox" checked={!evidenceCollapsed} onChange={(event) => setEvidenceCollapsed(!event.target.checked)} /><span><strong>Evidence rail</strong><small>Keep the disclosure and prior-art rail open while drafting.</small></span></label>
-        <label><input type="checkbox" checked={!inspectorCollapsed} onChange={(event) => setInspectorCollapsed(!event.target.checked)} /><span><strong>Inspector rail</strong><small>Keep terms, support, and preflight findings visible.</small></span></label>
+        <label><input type="checkbox" checked={ghostTextEnabled} onChange={(event) => setGhostTextEnabled(event.target.checked)} /><span><strong>Drafting prompts</strong></span></label>
+        <label><input type="checkbox" checked={!evidenceCollapsed} onChange={(event) => setEvidenceCollapsed(!event.target.checked)} /><span><strong>Evidence rail</strong></span></label>
+        <label><input type="checkbox" checked={!inspectorCollapsed} onChange={(event) => setInspectorCollapsed(!event.target.checked)} /><span><strong>Inspector rail</strong></span></label>
       </div>
     );
     return null;
@@ -1374,9 +1354,8 @@ export function App() {
       <div className="application-body">
         <AppNavigation activeId={isGuideRoute ? "playbook" : activeNavId} onNavigate={handleNav} modeLabel={MODE_LABELS[modeId]} />
         <main className="main-stage">
-          <div className="stage-topline">
-            <p className="stage-kicker">{isGuideRoute ? "resources" : attempt.phase.replaceAll("-", " ")}</p>
-            {isGuideRoute ? <p className="stage-title">Drafting guides</p> : <h1 className="stage-title">{STAGE_TITLES[attempt.phase]}</h1>}
+          {!isGuideRoute ? <div className="stage-topline">
+            {!isGuideRoute ? <h1 className="stage-title">{STAGE_TITLES[attempt.phase]}</h1> : null}
             <span className="spacer" />
             {!isGuideRoute && attempt.phase === "office-action" ? <button type="button" className="quiet-button" onClick={openMappingChallenge}><ListMagnifyingGlass size={15} aria-hidden="true" /> Challenge mapping</button> : null}
             {!isGuideRoute && ["drafting", "preflight", "response"].includes(attempt.phase) ? (
@@ -1406,7 +1385,7 @@ export function App() {
               </button>
             ) : null}
             <span className="legal-boundary"><Info size={13} aria-hidden="true" /> Educational simulation, not legal advice</span>
-          </div>
+          </div> : null}
           {stageContent}
         </main>
       </div>

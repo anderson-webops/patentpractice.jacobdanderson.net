@@ -172,7 +172,7 @@ describe("ScopeCraft playable application", () => {
     await user.click(screen.getByRole("button", { name: "Open debrief" }));
 
     expect(
-      await screen.findByRole("heading", { name: "Your claim strategy, explained" }),
+      await screen.findByRole("heading", { level: 1, name: "Portfolio debrief" }),
     ).toBeInTheDocument();
     expect(screen.getByText(/limited to the ScopeCraft challenge record/iu)).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Portfolio score" })).toBeInTheDocument();
@@ -305,12 +305,15 @@ describe("ScopeCraft playable application", () => {
     );
   });
 
-  it("offers a dismissible first-use entry and replays the accessible tour from Help", async () => {
+  it("keeps the accessible tour available from Help without unsolicited onboarding", async () => {
     const user = userEvent.setup();
     render(<App />);
 
-    const firstUse = await screen.findByRole("region", { name: "New to ScopeCraft?" });
-    await user.click(within(firstUse).getByRole("button", { name: "Take the 2-minute tour" }));
+    await screen.findByText("Saved locally");
+    expect(screen.queryByRole("region", { name: "New to ScopeCraft?" })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Help" }));
+    let help = await screen.findByRole("dialog", { name: "ScopeCraft playbook" });
+    await user.click(within(help).getByRole("button", { name: "Quick tour" }));
 
     let dialog = await screen.findByRole("dialog", { name: /Step 1 of 4/iu });
     await waitFor(() =>
@@ -325,8 +328,8 @@ describe("ScopeCraft playable application", () => {
     await waitFor(() => expect(screen.getByRole("button", { name: /Start drafting/iu })).toHaveFocus());
 
     await user.click(screen.getByRole("button", { name: "Help" }));
-    const help = await screen.findByRole("dialog", { name: "ScopeCraft playbook" });
-    await user.click(within(help).getByRole("button", { name: "Replay the quick tour" }));
+    help = await screen.findByRole("dialog", { name: "ScopeCraft playbook" });
+    await user.click(within(help).getByRole("button", { name: "Quick tour" }));
     const replayedTour = await screen.findByRole("dialog", { name: /Step 1 of 4/iu });
     await expectNoAxeViolations(replayedTour);
   });

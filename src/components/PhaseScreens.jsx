@@ -13,7 +13,6 @@ import {
 } from "@phosphor-icons/react";
 
 import { normalizeClaimSet, sortClaims } from "../domain/claims.js";
-import { FirstUseGuide } from "./GuidedTour.jsx";
 
 export function BriefingScreen({
   challenge,
@@ -22,17 +21,11 @@ export function BriefingScreen({
   onStart,
   assignmentNotice,
   onCopyAssignment,
-  showFirstUseGuide = false,
-  onStartTour,
-  onDismissFirstUse,
 }) {
   const modes = Object.values(challenge.modes);
   return (
     <div className="phase-screen">
       <div className="phase-content">
-        {showFirstUseGuide ? (
-          <FirstUseGuide onStartTour={onStartTour} onDismiss={onDismissFirstUse} />
-        ) : null}
         {assignmentNotice ? (
           <section
             className="assignment-notice"
@@ -45,7 +38,6 @@ export function BriefingScreen({
         ) : null}
         <header className="phase-hero">
           <div>
-            <p className="stage-kicker">Challenge 01 · U.S. system drafting</p>
             <h2>{challenge.metadata.title}</h2>
             <p>{challenge.disclosure.sections.find((section) => section.id === "claim-task")?.body}</p>
           </div>
@@ -143,8 +135,6 @@ export function OfficeActionScreen({ officeAction, challenge, onOpenResponse, on
       <div className="phase-content">
         <header className="phase-hero">
           <div>
-            <p className="stage-kicker">Examiner simulation · Core record</p>
-            <h2>First examination</h2>
             <p>{challenge.educationalBoundary.officeAction}</p>
           </div>
           <button type="button" className="primary-button" onClick={onOpenResponse}>
@@ -154,7 +144,7 @@ export function OfficeActionScreen({ officeAction, challenge, onOpenResponse, on
         <div className="result-grid">
           <main>
             <div className="office-action-summary">
-              The simulation evaluated the claims actually submitted, carried every inherited limitation into dependent-claim review, and identified {officeAction?.officeAction?.counts?.rejected ?? 0} simulated rejections.
+              {officeAction?.officeAction?.counts?.rejected ?? 0} simulated rejections.
             </div>
             <div style={{ marginTop: 16 }}>
               {claims.map((claim) => (
@@ -293,7 +283,6 @@ export function CompetitorScreen({
       <div className="phase-content">
         <header className="phase-hero">
           <div>
-            <p className="stage-kicker">Competitor attack · Literal mapping exercise</p>
             <h2>{revealed ? "Compare your prediction" : "Can the competitor avoid the claim?"}</h2>
             <p>{challenge.educationalBoundary.competitor}</p>
           </div>
@@ -375,8 +364,6 @@ export function DebriefScreen({ score, challenge, onRestart, onExport }) {
       <div className="phase-content">
         <header className="phase-hero">
           <div>
-            <p className="stage-kicker">Portfolio debrief · Attempt complete</p>
-            <h2>Your claim strategy, explained</h2>
             <p>{challenge.educationalBoundary.final}</p>
           </div>
           <div style={{ display: "flex", gap: 8 }}>
