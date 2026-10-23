@@ -1,6 +1,6 @@
 {
   "name": "scopecraft",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "An educational patent-claim drafting game with examination, amendment, and design-around challenges.",
   "private": true,
   "repository": {
@@ -56,7 +56,7 @@
     "jsdom": "^30.0.1",
     "pdfjs-dist": "6.3.289",
     "vite": "6.4.4",
-    "vitest": "^4.1.11",
+    "vitest": "^4.1.12",
     "yauzl": "3.4.0"
   }
 }
