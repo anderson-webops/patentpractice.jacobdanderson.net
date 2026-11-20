@@ -1374,7 +1374,7 @@ export function App() {
                 type="button"
                 className="quiet-button print-packet-entry"
                 onClick={openPrintDialog}
-                aria-label="Print player packet"
+                aria-label="Print packet"
               >
                 <Printer size={15} aria-hidden="true" /> <span>Print packet</span>
               </button>

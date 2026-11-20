@@ -474,16 +474,16 @@ test("keeps provider-specific APIs and identifiers out of client build inputs", 
   assert.doesNotMatch(packageJson.scripts.build, /(?:openai|sites|worker)/iu);
   assert.match(packageJson.scripts.build, /npm run challenges:check/u);
   assert.match(packageJson.scripts.build, /node scripts\/verify-client-artifact\.mjs$/u);
-  assert.equal(packageJson.packageManager, "npm@12.2.1");
-  assert.deepEqual(packageJson.engines, { node: "26.13.0", npm: "12.2.1" });
-  assert.equal((await readFile(path.join(root, ".node-version"), "utf8")).trim(), "26.13.0");
-  assert.equal((await readFile(path.join(root, ".nvmrc"), "utf8")).trim(), "26.13.0");
+  assert.equal(packageJson.packageManager, "npm@12.2.3");
+  assert.deepEqual(packageJson.engines, { node: "26.13.1", npm: "12.2.3" });
+  assert.equal((await readFile(path.join(root, ".node-version"), "utf8")).trim(), "26.13.1");
+  assert.equal((await readFile(path.join(root, ".nvmrc"), "utf8")).trim(), "26.13.1");
   const directPackages = Object.keys({
     ...packageJson.dependencies,
     ...packageJson.devDependencies,
   });
   const packageLock = JSON.parse(await readFile(path.join(root, "package-lock.json"), "utf8"));
-  assert.deepEqual(packageLock.packages[""].engines, { node: "26.13.0", npm: "12.2.1" });
+  assert.deepEqual(packageLock.packages[""].engines, { node: "26.13.1", npm: "12.2.3" });
   const installedPackages = Object.keys(packageLock.packages ?? {}).flatMap((location) => {
     const marker = "node_modules/";
     const markerIndex = location.lastIndexOf(marker);

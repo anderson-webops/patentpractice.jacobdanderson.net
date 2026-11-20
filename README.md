@@ -52,7 +52,7 @@ ScopeCraft has no account system, analytics, telemetry, backend, or database. Dr
 
 ## Run locally
 
-Requirements: Node.js 26.13.0 and npm 12.2.1. The repository pins that exact build and CI toolchain in `.node-version`, `.nvmrc`, `package.json`, and the lockfile; the static site has no production Node process.
+Requirements: Node.js 26.13.1 and npm 12.2.3. The repository pins that exact build and CI toolchain in `.node-version`, `.nvmrc`, `package.json`, and the lockfile; the static site has no production Node process.
 
 ```sh
 npm ci

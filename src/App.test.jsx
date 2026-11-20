@@ -340,7 +340,7 @@ describe("ScopeCraft playable application", () => {
     render(<App />);
 
     await screen.findByText("Saved locally");
-    await user.click(screen.getByRole("button", { name: "Print player packet" }));
+    await user.click(screen.getByRole("button", { name: "Print packet" }));
     const dialog = await screen.findByRole("dialog", { name: "Print player packet" });
     expect(within(dialog).getByRole("radio", { name: /Drafting packet/iu })).toBeChecked();
     expect(within(dialog).getByRole("radio", { name: /Amendment packet/iu })).toBeDisabled();
