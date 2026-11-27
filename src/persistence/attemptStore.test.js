@@ -14,6 +14,8 @@ import {
   importAttemptState,
 } from "./attemptStore.js";
 
+const fixtureClock = "2026-08-24T14:00:00.000Z";
+
 function makeAttempt({
   id = "attempt-persisted",
   challengeHash = "challenge-v1",
@@ -65,6 +67,7 @@ describe("attempt persistence", () => {
     const memory = new Map();
     const store = createAttemptStore({
       namespace: "test-memory-crud",
+      now: fixtureClock,
       forceFallback: true,
       localStorage: null,
       memory,
@@ -83,11 +86,13 @@ describe("attempt persistence", () => {
     const localStorage = createFakeLocalStorage();
     const first = createAttemptStore({
       namespace: "test-local-storage",
+      now: fixtureClock,
       forceFallback: true,
       localStorage,
     });
     const second = createAttemptStore({
       namespace: "test-local-storage",
+      now: fixtureClock,
       forceFallback: true,
       localStorage,
     });
@@ -111,6 +116,7 @@ describe("attempt persistence", () => {
     };
     const store = createAttemptStore({
       namespace: "test-blocked-storage",
+      now: fixtureClock,
       forceFallback: true,
       localStorage: blockedStorage,
       memory: new Map(),
@@ -125,6 +131,7 @@ describe("attempt persistence", () => {
     const localStorage = createFakeLocalStorage();
     const store = createAttemptStore({
       namespace: "test-blocked-indexed-db",
+      now: fixtureClock,
       localStorage,
       openDB: async () => {
         throw new Error("IndexedDB denied by browser policy");
@@ -155,6 +162,7 @@ describe("attempt persistence", () => {
 
     const store = createAttemptStore({
       namespace: "test-import",
+      now: fixtureClock,
       forceFallback: true,
       localStorage: null,
       memory: new Map(),
@@ -181,6 +189,7 @@ describe("attempt persistence", () => {
   it("flags challenge, engine, and schema mismatches read-only on load", async () => {
     const store = createAttemptStore({
       namespace: "test-mismatch",
+      now: fixtureClock,
       forceFallback: true,
       localStorage: null,
       memory: new Map(),
